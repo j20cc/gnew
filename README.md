@@ -5,7 +5,7 @@ fast create new go project template
 ### install
 
 ```shell
-$ go install github.com/lukedever/gnew
+$ go get github.com/lukedever/gnew
 ```
 
 ### usage

@@ -59,6 +59,8 @@ func newProject(c *cli.Context) error {
 		}
 	}
 
+	log.Println("done, cd ", name, " run: make run")
+
 	return nil
 }
 
@@ -78,6 +80,7 @@ func download(src, path string) error {
 	}
 	defer file.Close()
 
+	log.Println("downloading template file: ", path)
 	resp, err := http.Get(src)
 	if err != nil {
 		return err
