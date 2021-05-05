@@ -98,9 +98,8 @@ func download(src, path string) error {
 	if err != nil {
 		return err
 	}
-	new := strings.ReplaceAll(string(r), "<name>", name)
-	err = ioutil.WriteFile(path, []byte(new), 0)
-	if err != nil {
+	new := strings.Replace(string(r), "<name>", name, -1)
+	if err = ioutil.WriteFile(path, []byte(new), 0); err != nil {
 		return err
 	}
 
