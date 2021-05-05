@@ -1,3 +1,7 @@
-## NAME
+## <name>
 
-NAME
+run
+
+```shell
+$ make run
+```

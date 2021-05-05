@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/urfave/cli/v2"
 )
@@ -16,7 +18,8 @@ type fs struct {
 }
 
 var (
-	ds []fs
+	ds   []fs
+	name string
 )
 
 func main() {
@@ -33,7 +36,7 @@ func main() {
 }
 
 func newProject(c *cli.Context) error {
-	name := c.Args().Get(0)
+	name = c.Args().Get(0)
 	// check arg
 	if name == "" {
 		return errors.New("project name required")
@@ -44,29 +47,28 @@ func newProject(c *cli.Context) error {
 		return errors.New("project folder existed!")
 	}
 
-	initDonwloads(name)
-
 	// mkdir, down stub files
 	if err := os.MkdirAll(name+"/cmd/"+name, 0777); err != nil {
 		return err
 	}
+
+	initDonwloads()
 	for _, v := range ds {
 		if err := download(v.url, v.dst); err != nil {
 			return err
 		}
 	}
 
-	// replace code
-
 	return nil
 }
 
-func initDonwloads(folder string) {
+func initDonwloads() {
 	baseUrl := "https://cdn.jsdelivr.net/gh/lukedever/gnew@master/stubs/"
-	d1 := fs{baseUrl + "Makefile", folder + "/Makefile"}
-	d2 := fs{baseUrl + "README.md", folder + "/README.md"}
-	d3 := fs{baseUrl + "main.stub", fmt.Sprintf("%s/cmd/%s/main.go", folder, folder)}
-	ds = append(ds, d1, d2, d3)
+	d1 := fs{baseUrl + "Makefile", name + "/Makefile"}
+	d2 := fs{baseUrl + "README.md", name + "/README.md"}
+	d3 := fs{baseUrl + "main.stub", fmt.Sprintf("%s/cmd/%s/main.go", name, name)}
+	d4 := fs{baseUrl + "gomod.stub", name + "/go.mod"}
+	ds = append(ds, d1, d2, d3, d4)
 }
 
 func download(src, path string) error {
@@ -87,6 +89,17 @@ func download(src, path string) error {
 	}
 
 	_, err = io.Copy(file, resp.Body)
+	if err != nil {
+		return err
+	}
+
+	// replace
+	r, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	new := strings.ReplaceAll(string(r), "<name>", name)
+	err = ioutil.WriteFile(path, []byte(new), 0)
 	if err != nil {
 		return err
 	}
