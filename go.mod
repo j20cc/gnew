@@ -1,4 +1,4 @@
-module gnew
+module github.com/lukedever/gnew
 
 go 1.16
 
